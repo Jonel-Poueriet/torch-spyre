@@ -425,6 +425,14 @@ auto generate_dci(const at::Tensor* cpu_tensor, const at::Tensor* dev_tensor,
       " dst=", static_cast<int>(dci.dataformat_dst_),
       " (cpu_type=", cpu_str_type, ", dev_type=", dev_str_type, ")");
 
+  // Validate that the host CPU scalar type actually has enough bytes for the
+  // mapped host DataFormat
+  TORCH_CHECK(cpu_tensor->element_size() >= hostFormatBytes(cpu_format_host),
+              "Host tensor element size (", cpu_tensor->element_size(),
+              " bytes) is smaller than destination DataFormat size (",
+              hostFormatBytes(cpu_format_host), " bytes for format ",
+              static_cast<int>(cpu_format_host), ")");
+
   auto spyre_tensor_impl =
       static_cast<SpyreTensorImpl*>(dev_tensor->unsafeGetTensorImpl());
 
